@@ -1,70 +1,42 @@
 package paging
 
 import (
-	`encoding/json`
+	"fmt"
+	"strings"
 )
 
-type page struct {
-	// 当前页码
-	Page int32 `json:"-"`
-	// 是否还有下一页数据
-	HasNext bool `json:"-"`
-	// 是否有上一页数据
-	HasPrev bool `json:"-"`
-	// 总共数量
-	Total int64 `json:"-"`
-	// 总共页数
-	Pages int64 `json:"-"`
-	// 数据列表
-	Items interface{} `json:"-"`
-	// 额外数据
-	Fields []Field `json:"-"`
+// Page 分页对象
+type Page struct {
+	// 当前页
+	Page int `default:"1" json:"page" yaml:"page" xml:"page" toml:"page" validate:"min=1"`
+	// 每页个数
+	Size int `default:"20" json:"size" yaml:"size" xml:"size" toml:"size" validate:"min=1"`
+	// 查询关键字
+	Keyword string `json:"keyword" yaml:"keyword" xml:"keyword" toml:"keyword"`
+	// 排序顺序
+	// nolint: lll
+	Order string `default:"DESC" json:"order" yaml:"order" xml:"order" toml:"order" validate:"oneof=asc ASC ascending ASCENDING desc DESC descending DESCENDING"`
+	// 排序字段
+	Sort string `json:"sort" yaml:"sort" xml:"sort" toml:"sort"`
 }
 
-// NewPage 生成新的分页数据对象
-func NewPage(items interface{}, total int64, opts ...pageOption) *page {
-	options := defaultPageOptions()
-	for _, opt := range opts {
-		opt.applyPage(options)
+func (p *Page) OrderBy() string {
+	order := asc
+	if strings.HasPrefix(strings.ToUpper(p.Order), desc) {
+		order = desc
 	}
 
-	pages := total / int64(options.size)
-	if (total % int64(options.size)) > 0 {
-		pages += 1
-	}
-
-	hasPrev := false
-	if options.page > 1 {
-		hasPrev = true
-	}
-
-	hasNext := false
-	if int64(options.page) < pages {
-		hasNext = true
-	}
-
-	return &page{
-		Page:    options.page,
-		HasNext: hasNext,
-		HasPrev: hasPrev,
-		Total:   total,
-		Pages:   pages,
-		Items:   items,
-		Fields:  options.fields,
-	}
+	return fmt.Sprintf("`%s` %s", p.Sort, order)
 }
 
-func (p page) MarshalJSON() ([]byte, error) {
-	data := make(map[string]interface{}, 7)
-	data[`page`] = p.Page
-	data[`hasNext`] = p.HasNext
-	data[`hasPrev`] = p.HasPrev
-	data[`total`] = p.Total
-	data[`items`] = p.Items
-	data[`pages`] = p.Pages
-	for _, field := range p.Fields {
-		data[field.Key()] = field.Value()
-	}
+func (p *Page) Mysql() (start int, offset int) {
+	return p.Size, (p.Page - 1) * p.Size
+}
 
-	return json.Marshal(data)
+func (p *Page) Start() int {
+	return (p.Page - 1) * p.Size
+}
+
+func (p *Page) Limit() int {
+	return p.Size
 }
