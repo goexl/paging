@@ -30,14 +30,10 @@ func (p *Pagination) OrderBy() string {
 	return fmt.Sprintf("`%s` %s", p.Sort, order)
 }
 
-func (p *Pagination) MySQL() (start int, offset int) {
+func (p *Pagination) Limit() (start int, offset int) {
 	return p.Size, (p.Page - 1) * p.Size
 }
 
 func (p *Pagination) Start() int {
 	return (p.Page - 1) * p.Size
-}
-
-func (p *Pagination) Limit() int {
-	return p.Size
 }
