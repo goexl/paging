@@ -10,15 +10,15 @@ import (
 // Page 分页对象
 type Page struct {
 	// 当前页
-	Page int `default:"1" json:"page,omitempty" validate:"min=1"`
+	Page int `default:"1" json:"page,omitempty" query:"page" validate:"min=1"`
 	// 每页个数
-	Size int `default:"20" json:"size,omitempty" validate:"min=1"`
+	Size int `default:"20" json:"size,omitempty" query:"size" validate:"min=1"`
 	// 查询关键字
-	Keyword string `json:"keyword,omitempty"`
+	Keyword string `json:"keyword,omitempty" query:"keyword"`
 	// 排序顺序
-	Order string `default:"DESC" json:"order,omitempty" validate:"oneof=asc ASC ascending ASCENDING desc DESC descending DESCENDING"` // nolint: lll
+	Order string `default:"DESC" json:"order,omitempty" query:"order" validate:"oneof=asc ASC ascending ASCENDING desc DESC descending DESCENDING"` // nolint: lll
 	// 排序字段
-	Sort string `json:"sort,omitempty"`
+	Sort string `json:"sort,omitempty" query:"sort"`
 }
 
 func (p *Page) OrderBy() string {
