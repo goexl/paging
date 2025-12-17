@@ -21,13 +21,18 @@ type Pagination struct {
 	Sort string `json:"sort,omitempty" query:"sort"`
 }
 
-func (p *Pagination) OrderBy() string {
+func (p *Pagination) OrderBy() (by string) {
+	if p.Sort == "" || p.Order == "" {
+		return
+	}
+
 	order := constant.ASC
 	if strings.HasPrefix(strings.ToUpper(p.Order), constant.DESC) {
 		order = constant.DESC
 	}
+	by = fmt.Sprintf("`%s` %s", p.Sort, order)
 
-	return fmt.Sprintf("`%s` %s", p.Sort, order)
+	return
 }
 
 func (p *Pagination) Limit() (start int, offset int) {
