@@ -7,8 +7,8 @@ import (
 	"github.com/goexl/paging/internal/constant"
 )
 
-// Page 分页对象
-type Page struct {
+// Paging 分页对象
+type Paging struct {
 	// 当前页
 	Page int `default:"1" json:"page,omitempty" query:"page" validate:"min=1"`
 	// 每页个数
@@ -21,7 +21,7 @@ type Page struct {
 	Sort string `json:"sort,omitempty" query:"sort"`
 }
 
-func (p *Page) OrderBy() string {
+func (p *Paging) OrderBy() string {
 	order := constant.ASC
 	if strings.HasPrefix(strings.ToUpper(p.Order), constant.DESC) {
 		order = constant.DESC
@@ -30,14 +30,14 @@ func (p *Page) OrderBy() string {
 	return fmt.Sprintf("`%s` %s", p.Sort, order)
 }
 
-func (p *Page) MySQL() (start int, offset int) {
+func (p *Paging) MySQL() (start int, offset int) {
 	return p.Size, (p.Page - 1) * p.Size
 }
 
-func (p *Page) Start() int {
+func (p *Paging) Start() int {
 	return (p.Page - 1) * p.Size
 }
 
-func (p *Page) Limit() int {
+func (p *Paging) Limit() int {
 	return p.Size
 }
