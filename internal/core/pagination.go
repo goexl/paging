@@ -36,7 +36,7 @@ func (p *Pagination) OrderBy() (by string) {
 }
 
 func (p *Pagination) Limit() (start int, offset int) {
-	return (p.Page - 1) * p.Size, p.Size
+	return p.Size, (p.Page - 1) * p.Size
 }
 
 func (p *Pagination) Start() int {
